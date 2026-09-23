@@ -129,7 +129,20 @@ const server = Bun.serve({
     url.hostname = "127.0.0.1";
     url.port = "8787";
     try {
-      return await fetch(new Request(url, request));
+      const upstreamRequest = new Request(url, request);
+      upstreamRequest.headers.set("accept-encoding", "identity");
+      const response = await fetch(upstreamRequest);
+      const headers = new Headers(response.headers);
+      // Bun fetch decodes compressed Worker responses but retains their
+      // original encoding headers. Passing those headers to the browser makes
+      // JavaScript and CSS fail to load with a decompression error.
+      headers.delete("content-encoding");
+      headers.delete("content-length");
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
     } catch {
       return new Response("Worker unavailable", { status: 503 });
     }

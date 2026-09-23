@@ -32,6 +32,7 @@
   }
   
   html {
+    color-scheme: dark;
     font-family: var(--font-mono);
     font-size: 10px;
     background-color: var(--color-hud-bg);
