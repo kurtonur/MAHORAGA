@@ -1,6 +1,6 @@
 # MAHORAGA: Docker Compose + Cloudflare Tunnel
 
-Bu kurulum dashboard, Worker, Durable Objects, D1, KV ve R2'nin yerel sürümlerini tek Docker container içinde çalıştırır. Veriler `mahoraga-state` volume'unda `/data` altında tutulur. Container'ın web portu yalnızca sunucunun `127.0.0.1:18650` adresine bağlanır; dış IP'de port açılmaz.
+Bu kurulum dashboard, Worker, Durable Objects, D1, KV ve R2'nin yerel sürümlerini tek Docker container içinde çalıştırır. Veriler `mahoraga-state` volume'unda `/data` altında tutulur. `18650:3000` eşlemesi sunucunun 18650 portunu container'ın 3000 portuna yönlendirir. Bu eşleme sunucunun tüm ağ arayüzlerinde dinler; yalnızca Cloudflare Tunnel erişimi isteniyorsa dış ağdan 18650 portuna erişimi ağ güvenlik duvarında engelleyin.
 
 ## Coolify (Trading Bot / production)
 
@@ -9,7 +9,7 @@ Bu kurulum dashboard, Worker, Durable Objects, D1, KV ve R2'nin yerel sürümler
 3. **Raw Compose Deployment** kapalı kalsın. Bu uygulamaya Coolify domain'i eklemeyin; eski otomatik domain varsa kaldırın.
 4. Coolify'nin oluşturduğu `SERVICE_REALBASE64_64_MAHORAGA_API_TOKEN` ve `SERVICE_REALBASE64_64_MAHORAGA_KILL_SWITCH` değişkenlerinin farklı, dolu değerler olduğunu kontrol edin. Bu değerleri Git'e yazmayın.
 5. Ortam değişkenlerine `ALPACA_API_KEY`, `ALPACA_API_SECRET` ve seçtiğiniz LLM sağlayıcısının anahtarını ekleyin. Başlangıçta `ALPACA_PAPER=true` tutun. API anahtarları girilmeden web servisi açılır ancak işlem botu çalışmaz.
-6. Deploy edin. Sunucuda `curl http://127.0.0.1:18650/health` yanıtında `"status":"ok"` görülmelidir.
+6. Deploy edin. Docker sağlık kontrolü container içinde `http://127.0.0.1:3000/health` adresini yoklar. Sunucuda `curl http://127.0.0.1:18650/health` yanıtında `"status":"ok"` görülmelidir.
 
 Bot varsayılan olarak devre dışıdır. Dashboard, Coolify'deki `SERVICE_REALBASE64_64_MAHORAGA_API_TOKEN` değeriyle oturum açar. Testten sonra etkinleştirmek için:
 
@@ -43,7 +43,7 @@ curl http://127.0.0.1:18650/health
 | Service URL | `http://127.0.0.1:18650` |
 | Path | Boş / tüm yollar |
 
-Cloudflare DNS kaydı rota eklendiğinde Tunnel hedefiyle oluşturulur. `cloudflared` ayrı bir Docker bridge container'ında çalışıyorsa onun `127.0.0.1` adresi sunucu değildir. Bu durumda `cloudflared`'ı host network ile çalıştırın veya hosta ulaşan güvenli bir Docker ağ yolu kurun; `18650` portunu sunucunun dış IP'sine açmayın.
+Cloudflare DNS kaydı rota eklendiğinde Tunnel hedefiyle oluşturulur. Bu sunucuda `cloudflared` host network ile çalıştığından `http://localhost:18650` hedefi uygundur. `18650:3000` eşlemesi dış ağ arayüzlerinde de dinlediği için yalnızca Tunnel erişimi isteniyorsa dışarıdan gelen 18650 trafiğini engelleyin.
 
 Dashboard'a yalnızca sizin erişmeniz için Cloudflare Access politikası tanımlayın. API token'ı dashboard tarayıcısında localStorage'a kaydedilir.
 

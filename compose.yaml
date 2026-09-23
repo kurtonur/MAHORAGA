@@ -26,7 +26,7 @@ services:
       TWITTER_BEARER_TOKEN: ${TWITTER_BEARER_TOKEN:-}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
     ports:
-      - "127.0.0.1:18650:3000"
+      - "18650:3000"
     volumes:
       - mahoraga-state:/data
     healthcheck:
