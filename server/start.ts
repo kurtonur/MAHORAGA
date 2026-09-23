@@ -52,17 +52,20 @@ const worker = Bun.spawn(
 );
 
 let ready = false;
-for (let attempt = 0; attempt < 60; attempt++) {
+for (let attempt = 0; attempt < 20; attempt++) {
   if (await Promise.race([worker.exited.then(() => true), Bun.sleep(1000).then(() => false)])) {
     throw new Error("Wrangler exited before becoming ready");
   }
   try {
-    const response = await fetch(`${workerUrl}/health`);
+    const response = await fetch(`${workerUrl}/health`, { signal: AbortSignal.timeout(2000) });
     if (response.ok) {
       ready = true;
       break;
     }
-  } catch {}
+    console.error(`Wrangler health endpoint returned ${response.status}`);
+  } catch (error) {
+    if (attempt === 0 || attempt === 19) console.error("Wrangler health endpoint did not respond", error);
+  }
 }
 if (!ready) {
   worker.kill();
