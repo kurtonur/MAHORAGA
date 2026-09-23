@@ -36,6 +36,13 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
+    // The dashboard uses /api/* while the agent's public API is /agent/*.
+    // Keep authentication and rate limiting on the shared /agent/* path.
+    if (url.pathname.startsWith("/api/")) {
+      url.pathname = `/agent/${url.pathname.slice(5)}`;
+      request = new Request(url, request);
+    }
+
     if (url.pathname === "/health") {
       return new Response(
         JSON.stringify({
@@ -75,7 +82,11 @@ export default {
     }
 
     if (url.pathname.startsWith("/agent")) {
-      if (!isAuthorized(request, env)) {
+      const killToken = request.headers.get("Authorization")?.slice(7) || "";
+      const killAuthorized = url.pathname === "/agent/kill" &&
+        !!env.KILL_SWITCH_SECRET &&
+        constantTimeCompare(killToken, env.KILL_SWITCH_SECRET);
+      if (!isAuthorized(request, env) && !killAuthorized) {
         return unauthorizedResponse();
       }
 

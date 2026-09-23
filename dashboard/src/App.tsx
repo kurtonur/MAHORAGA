@@ -338,12 +338,12 @@ export default function App() {
                   </button>
                 </div>
                 <p className="text-hud-text-dim text-xs">
-                  Find your token in <code className="text-hud-primary">.dev.vars</code> (local) or Cloudflare secrets (deployed)
+                  Find your token in the MAHORAGA_API_TOKEN environment variable in Coolify.
                 </p>
               </div>
             ) : (
               <p className="text-hud-text-dim text-xs">
-                Enable the agent: <code className="text-hud-primary">curl -H "Authorization: Bearer $TOKEN" localhost:8787/agent/enable</code>
+                Check the MAHORAGA container logs and the Alpaca credentials in Coolify.
               </p>
             )}
           </div>

@@ -1,0 +1,57 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "mahoraga-server",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "ENVIRONMENT": "server",
+    "FEATURE_LLM_RESEARCH": "true",
+    "FEATURE_OPTIONS": "false",
+    "DEFAULT_MAX_POSITION_PCT": "0.10",
+    "DEFAULT_MAX_NOTIONAL_PER_TRADE": "5000",
+    "DEFAULT_MAX_DAILY_LOSS_PCT": "0.02",
+    "DEFAULT_COOLDOWN_MINUTES": "30",
+    "DEFAULT_MAX_OPEN_POSITIONS": "10",
+    "DEFAULT_APPROVAL_TTL_SECONDS": "300"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "mahoraga-db",
+    "database_id": "00000000-0000-4000-8000-000000000001",
+    "migrations_dir": "migrations"
+  }],
+  "kv_namespaces": [{
+    "binding": "CACHE",
+    "id": "00000000-0000-4000-8000-000000000002"
+  }],
+  "r2_buckets": [{
+    "binding": "ARTIFACTS",
+    "bucket_name": "mahoraga-artifacts"
+  }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "SESSION", "class_name": "SessionDO" },
+      { "name": "MCP_AGENT", "class_name": "MahoragaMcpAgent" },
+      { "name": "MAHORAGA_HARNESS", "class_name": "MahoragaHarness" }
+    ]
+  },
+  "migrations": [{
+    "tag": "v1",
+    "new_sqlite_classes": ["SessionDO", "MahoragaMcpAgent", "MahoragaHarness"]
+  }],
+  "assets": {
+    "directory": "./dashboard/dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/agent/*", "/mcp*", "/health"]
+  },
+  "triggers": {
+    "crons": [
+      "*/5 13-20 * * 1-5",
+      "0 14 * * 1-5",
+      "30 21 * * 1-5",
+      "0 5 * * *",
+      "0 * * * *"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+.git
+.dev.vars
+.env
+.env.*
+!.env.example
+node_modules
+dashboard/node_modules
+dashboard/dist
+.wrangler
+*.log
