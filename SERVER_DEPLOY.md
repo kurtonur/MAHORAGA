@@ -50,3 +50,5 @@ Dashboard'a yalnızca sizin erişmeniz için Cloudflare Access politikası tanı
 ## Çalışma modeli
 
 Bu server paketi Cloudflare'ın yerel `wrangler dev`/Miniflare runtime'ını kullanır. Cloudflare bunu geliştirme ortamı olarak belgeliyor; gerçek para ile otomatik işlem için resmi production platformu değildir. Canlı işlem öncesinde Cloudflare Workers üzerinde D1/KV/R2/Durable Objects dağıtımı veya üretim için ayrıca doğrulanmış bir sunucu runtime'ı gerekir. Bu Compose kurulumunda paper trading varsayılandır.
+
+Docker imajında Bun ile birlikte Node.js 22 bulunur. Bun paketleri yükler ve dış HTTP sunucusunu çalıştırır; Wrangler gerçek Node.js ile çalışır. `wrangler dev` için ekrana yazılan `8787` yalnızca container içindeki Worker portudur. Tunnel hedefi `18650`, Docker sağlık kontrolü hedefi container içindeki `3000` portudur.

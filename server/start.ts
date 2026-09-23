@@ -40,14 +40,17 @@ await Bun.write(varsPath, [...values].map(([key, value]) => `${key}=${JSON.strin
 chmodSync(varsPath, 0o600);
 
 const commonEnv = { ...process.env, CI: "true", WRANGLER_SEND_METRICS: "false" };
+// Wrangler requires Node.js. Invoke it with the real Node runtime from the
+// image rather than bunx, which can fall back to Bun's Node compatibility.
+const wrangler = ["node", "node_modules/wrangler/bin/wrangler.js"];
 const migrate = Bun.spawnSync(
-  ["bunx", "wrangler", "d1", "migrations", "apply", "mahoraga-db", "--local", "--persist-to", dataDir, "--config", "wrangler.server.jsonc"],
+  [...wrangler, "d1", "migrations", "apply", "mahoraga-db", "--local", "--persist-to", dataDir, "--config", "wrangler.server.jsonc"],
   { cwd: process.cwd(), env: commonEnv, stdout: "inherit", stderr: "inherit" },
 );
 if (migrate.exitCode !== 0) throw new Error(`D1 migration failed (${migrate.exitCode})`);
 
 const worker = Bun.spawn(
-  ["bunx", "wrangler", "dev", "--config", "wrangler.server.jsonc", "--ip", "127.0.0.1", "--port", "8787", "--persist-to", dataDir, "--test-scheduled", "--show-interactive-dev-session=false"],
+  [...wrangler, "dev", "--config", "wrangler.server.jsonc", "--ip", "127.0.0.1", "--port", "8787", "--persist-to", dataDir, "--test-scheduled", "--show-interactive-dev-session=false"],
   { cwd: process.cwd(), env: commonEnv, stdout: "inherit", stderr: "inherit" },
 );
 

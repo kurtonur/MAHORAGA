@@ -1,4 +1,7 @@
-FROM oven/bun:1
+FROM oven/bun:1 AS bun-runtime
+
+FROM node:22-bookworm
+COPY --from=bun-runtime /usr/local/bin/bun /usr/local/bin/bun
 
 WORKDIR /app
 
